@@ -38,10 +38,14 @@ async function checkResponse(row) {
   const resp = await getExecutionContext(sids[0], sids[1]);
 
   if(resp.context.flow.variables) {
-    if(resp.context.flow.variables.CONFIRMED)
+    if(resp.context.flow.variables.CONFIRMED) {
       row.data.CONFIRMED = 'YES';
-    else if(resp.context.flow.variables.CANCELED)
+      row.data.ANSWERED = 'YES';
+    }
+    else if(resp.context.flow.variables.CANCELED) {
       row.data.CANCELED = 'YES';
+      row.data.ANSWERED = 'YES';
+    }
   }
 
   return row;
