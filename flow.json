@@ -1,0 +1,465 @@
+{
+  "description": "Appointment Reminder",
+  "states": [
+    {
+      "name": "Trigger",
+      "type": "trigger",
+      "transitions": [
+        {
+          "event": "incomingMessage"
+        },
+        {
+          "event": "incomingCall"
+        },
+        {
+          "next": "check_channel",
+          "event": "incomingRequest"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 40,
+          "y": -180
+        }
+      }
+    },
+    {
+      "name": "confirm_appt",
+      "type": "send-and-wait-for-reply",
+      "transitions": [
+        {
+          "next": "split_confirmation",
+          "event": "incomingMessage"
+        },
+        {
+          "event": "timeout"
+        },
+        {
+          "event": "deliveryFailure"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 120,
+          "y": 60
+        },
+        "from": "{{trigger.request.from}}",
+        "body": "{{trigger.request.parameters.initial_message}}",
+        "timeout": "82800"
+      }
+    },
+    {
+      "name": "split_confirmation",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "send_no_match",
+          "event": "noMatch"
+        },
+        {
+          "next": "send_confirmation_sms",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "1",
+              "arguments": [
+                "{{widgets.confirm_appt.inbound.Body}}"
+              ],
+              "type": "equal_to",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "next": "send_cancellation_sms",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "2",
+              "arguments": [
+                "{{widgets.confirm_appt.inbound.Body}}"
+              ],
+              "type": "equal_to",
+              "value": "2"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.confirm_appt.inbound.Body}}",
+        "offset": {
+          "x": -100,
+          "y": 280
+        }
+      }
+    },
+    {
+      "name": "send_confirmation_sms",
+      "type": "send-message",
+      "transitions": [
+        {
+          "next": "set_confirmed_via_sms",
+          "event": "sent"
+        },
+        {
+          "next": "set_confirmed_via_sms",
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -160,
+          "y": 540
+        },
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "{{trigger.request.parameters.confirmation_message}}"
+      }
+    },
+    {
+      "name": "send_cancellation_sms",
+      "type": "send-message",
+      "transitions": [
+        {
+          "next": "set_canceled_via_sms",
+          "event": "sent"
+        },
+        {
+          "next": "set_canceled_via_sms",
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 190,
+          "y": 540
+        },
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "{{trigger.request.parameters.cancellation_message}}"
+      }
+    },
+    {
+      "name": "send_no_match",
+      "type": "send-message",
+      "transitions": [
+        {
+          "next": "confirm_appt",
+          "event": "sent"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -470,
+          "y": 160
+        },
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "body": "{{trigger.request.parameters.invalid_response_message}}"
+      }
+    },
+    {
+      "name": "check_channel",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "event": "noMatch"
+        },
+        {
+          "next": "confirm_appt",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to SMS",
+              "arguments": [
+                "{{trigger.request.parameters.channel}}"
+              ],
+              "type": "equal_to",
+              "value": "SMS"
+            }
+          ]
+        },
+        {
+          "next": "confirm_appt_voice",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to Voice",
+              "arguments": [
+                "{{trigger.request.parameters.channel}}"
+              ],
+              "type": "equal_to",
+              "value": "Voice"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{trigger.request.parameters.channel}}",
+        "offset": {
+          "x": 540,
+          "y": -200
+        }
+      }
+    },
+    {
+      "name": "confirm_appt_voice",
+      "type": "make-outgoing-call-v2",
+      "transitions": [
+        {
+          "next": "gather_confirmation",
+          "event": "answered"
+        },
+        {
+          "event": "busy"
+        },
+        {
+          "event": "noAnswer"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "machine_detection_speech_threshold": "2400",
+        "detect_answering_machine": false,
+        "offset": {
+          "x": 520,
+          "y": 140
+        },
+        "recording_channels": "mono",
+        "timeout": 60,
+        "machine_detection": "Enable",
+        "trim": "do-not-trim",
+        "record": false,
+        "machine_detection_speech_end_threshold": "1200",
+        "machine_detection_timeout": "30",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "machine_detection_silence_timeout": "5000"
+      }
+    },
+    {
+      "name": "gather_confirmation",
+      "type": "gather-input-on-call",
+      "transitions": [
+        {
+          "next": "split_confirmation_digits",
+          "event": "keypress"
+        },
+        {
+          "event": "speech"
+        },
+        {
+          "next": "say_no_match",
+          "event": "timeout"
+        }
+      ],
+      "properties": {
+        "speech_timeout": "auto",
+        "offset": {
+          "x": 1030,
+          "y": 310
+        },
+        "loop": 1,
+        "finish_on_key": "#",
+        "say": "{{trigger.request.parameters.initial_message}}",
+        "language": "{{trigger.request.parameters.language}}",
+        "stop_gather": true,
+        "gather_language": "en",
+        "profanity_filter": "true",
+        "timeout": 5
+      }
+    },
+    {
+      "name": "set_confirmed_via_sms",
+      "type": "set-variables",
+      "transitions": [
+        {
+          "event": "next"
+        }
+      ],
+      "properties": {
+        "variables": [
+          {
+            "value": "1",
+            "key": "CONFIRMED"
+          }
+        ],
+        "offset": {
+          "x": -380,
+          "y": 800
+        }
+      }
+    },
+    {
+      "name": "set_canceled_via_sms",
+      "type": "set-variables",
+      "transitions": [
+        {
+          "event": "next"
+        }
+      ],
+      "properties": {
+        "variables": [
+          {
+            "value": "1",
+            "key": "CANCELED"
+          }
+        ],
+        "offset": {
+          "x": 0,
+          "y": 780
+        }
+      }
+    },
+    {
+      "name": "say_canceled",
+      "type": "say-play",
+      "transitions": [
+        {
+          "next": "set_canceled_via_voice",
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 1390,
+          "y": 790
+        },
+        "loop": 1,
+        "say": "{{trigger.request.parameters.cancellation_message}}"
+      }
+    },
+    {
+      "name": "split_confirmation_digits",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "say_no_match",
+          "event": "noMatch"
+        },
+        {
+          "next": "say_confirmed",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to 1",
+              "arguments": [
+                "{{widgets.gather_confirmation.Digits}}"
+              ],
+              "type": "equal_to",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "next": "say_canceled",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "If value equal_to 2",
+              "arguments": [
+                "{{widgets.gather_confirmation.Digits}}"
+              ],
+              "type": "equal_to",
+              "value": "2"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.gather_confirmation.Digits}}",
+        "offset": {
+          "x": 1070,
+          "y": 540
+        }
+      }
+    },
+    {
+      "name": "say_confirmed",
+      "type": "say-play",
+      "transitions": [
+        {
+          "next": "set_confirmed_via_voice",
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 1030,
+          "y": 790
+        },
+        "loop": 1,
+        "say": "{{trigger.request.parameters.confirmation_message}}"
+      }
+    },
+    {
+      "name": "set_confirmed_via_voice",
+      "type": "set-variables",
+      "transitions": [
+        {
+          "event": "next"
+        }
+      ],
+      "properties": {
+        "variables": [
+          {
+            "value": "1",
+            "key": "CONFIRMED"
+          }
+        ],
+        "offset": {
+          "x": 910,
+          "y": 1020
+        }
+      }
+    },
+    {
+      "name": "set_canceled_via_voice",
+      "type": "set-variables",
+      "transitions": [
+        {
+          "event": "next"
+        }
+      ],
+      "properties": {
+        "variables": [
+          {
+            "value": "1",
+            "key": "CANCELED"
+          }
+        ],
+        "offset": {
+          "x": 1310,
+          "y": 1020
+        }
+      }
+    },
+    {
+      "name": "say_no_match",
+      "type": "say-play",
+      "transitions": [
+        {
+          "next": "gather_confirmation",
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 660,
+          "y": 540
+        },
+        "loop": 1,
+        "say": "{{trigger.request.parameters.invalid_response_message}}"
+      }
+    }
+  ],
+  "initial_state": "Trigger",
+  "flags": {
+    "allow_concurrent_calls": true
+  }
+}

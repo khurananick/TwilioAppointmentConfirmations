@@ -1,0 +1,19 @@
+{
+  "name": "AppointmentReminders",
+  "version": "0.0.1",
+  "author": "Nick Khurana",
+  "private": true,
+  "dependencies": {
+    "colors": "1.4.0",
+    "dotenv": "8.2.0",
+    "glob": "7.1.6",
+    "papaparse": "5.2.0",
+    "request": "2.88.2",
+    "request-promise": "4.2.6",
+    "twilio": "3.40.0"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=0.8"
+  }
+}

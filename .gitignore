@@ -1,0 +1,7 @@
+*.swp
+.DS_Store
+
+.env
+lists/list.csv
+lists/list2.csv
+node_modules
