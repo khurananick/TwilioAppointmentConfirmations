@@ -18,13 +18,12 @@ This application uses a node CLI script + Twilio Studio to send out and confirm 
 - `CALL_FROM_NUMBER` and `CALL_FROM_NUMBER` are to be a comma-separated string of phone numbers from your account to be used for either sending a SMS or making a call.
 
 ## How To Run
-**Step 1:** Add the `csv` file of your contacts into the lists directory. There's a list.csv.sample in there for a starting point.
-**Step 2:** To send out the messages, the command is `node bin/sendReminders.js`
-**Step 3:** To check messages, the command is `node bin/checkResponses.js`
+**Step 1:** Add the `csv` file of your contacts into the lists directory. There's a list.csv.sample in there for a starting point. \
+**Step 2:** To send out the messages, the command is `node bin/sendReminders.js` \
+**Step 3:** To check messages, the command is `node bin/checkResponses.js` \
 
 ## Default Desigend Flow
-The default designed flow is for a 3-day reminder flow: the first 2 reminders are SMS. the final reminder is a voice call. \
-This best works if you set up a cron task as follows:
+The default designed flow is for a 3-day reminder flow: the first 2 reminders are SMS. the final reminder is a Voice call. This best works if you set up a cron task as follows:
 - `node bin/sendReminders.js` at, say, 9am every morning.
 - `node bin/checkResponses.js` at, say, 8am every morning. (an hour before sending new reminders).
 
