@@ -25,8 +25,8 @@ const SMS_FROM_NUMBER     = env.SMS_FROM_NUMBER.split(',');
 // if you use the default here, the first two times you run this script it will
 // send a text reminder. the third time will send a voice reminder. after that
 // it will not send any more reminders.
-const MAX_SMS             = 2
-const MAX_CALL            = 1
+const MAX_SMS             = 2;
+const MAX_CALL            = 1;
 
 // this function takes in the row information and channel
 // then creates a message template to be used when communicating
@@ -197,7 +197,7 @@ function processFile(filepath, callback) {
 
 // looks for csv files in the lists folder
 // then processes each file
-function init() {
+function run() {
   glob("lists/*.csv", {}, function(err, files) {
     function callback() {
       if(files.length) {
@@ -215,4 +215,12 @@ function init() {
   });
 }
 
-init();
+function test() {
+}
+
+// check for --test flag in command to run as test or live.
+for(let arg of process.argv)
+  if(arg.match("--test"))
+    return test();
+
+run();

@@ -83,7 +83,7 @@ function processFile(filepath, callback) {
 
 // looks for csv files in the lists folder
 // then processes each file
-function init() {
+function run() {
   glob("lists/*.csv", {}, function(err, files) {
     function callback() {
       if(files.length) {
@@ -101,4 +101,12 @@ function init() {
   });
 }
 
-init();
+function test() {
+}
+
+// check for --test flag in command to run as test or live.
+for(let arg of process.argv)
+  if(arg.match("--test"))
+    return test();
+
+run();
