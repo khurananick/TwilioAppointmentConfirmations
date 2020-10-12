@@ -27,11 +27,12 @@ The default designed flow is for a 3-day reminder flow: the first 2 reminders ar
 This best works if you set up a cron task as follows:
 - `node bin/sendReminders.js` at, say, 9am every morning.
 - `node bin/checkResponses.js` at, say, 8am every morning. (an hour before sending new reminders).
+
 What does this do? A few things! Essentially what this will do is:
 - On **Day1** at 8am there are no responses, but the script will run and end without any updates.
-- On **Day1** at 9am the script will run and send out SMS reminder to all the contacts in the csvs.
+- On **Day1** at 9am the script will run and send out **SMS** reminder to all the contacts in the csvs.
 - On **Day2** at 8am the script will check if any of the reminders from yesterday  had a response and update confirm/canceled accordingly.
-- On **Day2** at 9am the script will send another SMS to the contacts who never responded to Day1 SMS.
-- On **Day3** at 8am the script will check if any of the reminders from yesterday  had a response and update confirm/canceled accordingly.
-- On **Day3** at 9am the script will make a voice call to the contacts who never responded to Day2 SMS.
+- On **Day2** at 9am the script will send another **SMS** to the contacts who never responded to **Day1** SMS.
+- On **Day3** at 8am the script will check if any of the reminders from yesterday had a response and update confirm/canceled accordingly.
+- On **Day3** at 9am the script will make a voice call to the contacts who never responded to **Day2** SMS.
 
