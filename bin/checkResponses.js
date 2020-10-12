@@ -15,7 +15,7 @@ const base64Auth = Buffer.from(`${env.TWILIO_ACCOUNT_SID}:${env.TWILIO_AUTH_TOKE
 // pulls the execution context for the sent SMS or Voice call
 async function getExecutionContext(flow_sid, execution_sid) {
   const errorHandle = function(err) {
-    console.log('ERROR', err);
+    return JSON.stringify({error: err.code});
   };
 
   const options = {
