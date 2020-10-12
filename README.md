@@ -22,10 +22,15 @@ This application uses a node CLI script + Twilio Studio to send out and confirm 
 **Step 3:** To check messages, the command is `node bin/checkResponses.js`
 
 ## Default Desigend Flow
-The default expected flow here is that you have have a cron task that runs \
-- `bin/sendReminders.js` at, say, 9am every morning.
-- `bin/checkResponses.js` at, say, 8am every morning (an hour before sending new reminders).
+The default designed flow is for a 3-day reminder flow: the first 2 reminders are SMS. the final reminder is a voice call. \
+This best works if you set up a cron task as follows:
+- `node bin/sendReminders.js` at, say, 9am every morning.
+- `node bin/checkResponses.js` at, say, 8am every morning. (an hour before sending new reminders).
 What does this do? A few things! Essentially what this will do is:
-- Every morning at 8am the script will check if there were any reminders sent the day before and, if so, then check if the person responded with a confirmation or cancelation response.
-- At 9am, the script will look for all the contacts who have not responded so far and test what type of reminder to send next.
+- On Day1 at 8am there are no responses, but the script will run and end without any updates.
+- On Day1 at 9am the script will run and send out SMS reminder to all the contacts in the csvs.
+- On Day2 at 8am the script will check if any of the reminders from yesterday  had a response and update confirm/canceled accordingly.
+- On Day2 at 9am the script will send another SMS to the contacts who never responded to Day1 SMS.
+- On Day3 at 8am the script will check if any of the reminders from yesterday  had a response and update confirm/canceled accordingly.
+- On Day3 at 9am the script will make a voice call to the contacts who never responded to Day2 SMS.
 
