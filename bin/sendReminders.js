@@ -143,6 +143,10 @@ async function sendSMS(row) {
   return row;
 }
 
+// iterates through the csv file by row
+// checks if a SMS or Voice notification needs
+// to be sent to the contact and does the needful
+// then overwrites the file with updated data
 function processFile(filepath, callback) {
   const completedRows = [];
 
@@ -191,6 +195,8 @@ function processFile(filepath, callback) {
   });
 }
 
+// looks for csv files in the lists folder
+// then processes each file
 function init() {
   glob("lists/*.csv", {}, function(err, files) {
     function callback() {

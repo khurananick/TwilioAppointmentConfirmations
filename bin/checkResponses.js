@@ -1,11 +1,18 @@
+/*
+ * This script is used in conjunction with a Twilio Studio Flow
+ * to trigger a series of reminders for an upcoming appointment.
+ * We start with including some libraries and details we need.
+ */
 const env     = require('dotenv').config().parsed;
 const request = require('request-promise');
 const fs      = require('fs');
 const glob    = require('glob');
 const papa    = require("papaparse");
 
+// converts your account sid and auth token into a base64 string to be sent as Basic auth.
 const base64Auth = Buffer.from(`${env.TWILIO_ACCOUNT_SID}:${env.TWILIO_AUTH_TOKEN}`).toString('base64');
 
+// pulls the execution context for the sent SMS or Voice call
 async function getExecutionContext(flow_sid, execution_sid) {
   const errorHandle = function(err) {
     console.log('ERROR', err);
@@ -22,6 +29,8 @@ async function getExecutionContext(flow_sid, execution_sid) {
   return JSON.parse(response);
 }
 
+// checks the execution context to see if the person ever responded
+// either by text or voice and said confirm or cancel for the appointment reminder
 async function checkResponse(row) {
   if(!row.data.CURRENT_EXECUTION_SID) return row;
 
@@ -38,6 +47,11 @@ async function checkResponse(row) {
   return row;
 }
 
+
+// iterates through the csv file by row
+// tracks execution context for each row
+// overwrites the current file with updated data once
+// all of the rows are processed.
 function processFile(filepath, callback) {
   const completedRows = [];
   // callback function when each new row is read
@@ -67,6 +81,8 @@ function processFile(filepath, callback) {
   });
 }
 
+// looks for csv files in the lists folder
+// then processes each file
 function init() {
   glob("lists/*.csv", {}, function(err, files) {
     function callback() {
