@@ -1,9 +1,12 @@
-// pulls the execution context for the sent SMS or Voice call
+// ends the execution so that we can pull context
+// to test if the context has a response.
 async function endExecution(flow_sid, execution_sid) {
   console.log('Ending execution: ', execution_sid);
+
   const errorHandle = function(err) {
     return JSON.stringify({error: err.code});
   };
+
   const options = {
     'method': 'POST',
     'headers': {
@@ -16,14 +19,17 @@ async function endExecution(flow_sid, execution_sid) {
     'url': `https://studio.twilio.com/v1/Flows/${flow_sid}/Executions/${execution_sid}`
   };
   const response = JSON.parse(await request(options).catch(errorHandle));
-  console.log(response);
-  console.log('Ended execution: ', response.sid);
+
+  if(response.execution_sid)
+    console.log('Ended execution: ', response.execution_sid);
+
   return response;
 }
 
 // pulls the execution context for the sent SMS or Voice call
 async function getExecutionContext(flow_sid, execution_sid) {
   console.log('Getting execution context: ', execution_sid);
+
   const errorHandle = function(err) {
     return JSON.stringify({error: err.code});
   };
@@ -36,7 +42,9 @@ async function getExecutionContext(flow_sid, execution_sid) {
     'url': `https://studio.twilio.com/v2/Flows/${flow_sid}/Executions/${execution_sid}/Context`
   };
   const response = JSON.parse(await request(options).catch(errorHandle));
-  console.log('Got execution context: ', response.sid);
+
+  console.log('Got execution context: ', response.execution_sid);
+
   return response;
 }
 
@@ -49,16 +57,22 @@ async function checkResponse(row) {
   await endExecution(sids[0], sids[1]);
   const resp = await getExecutionContext(sids[0], sids[1]);
 
+  console.log('Checking execution for response: ', sids[1]);
   if(resp.context.flow.variables) {
     if(resp.context.flow.variables.CONFIRMED) {
+      console.log('Found confirm response: ', sids[1]);
       row.data.CONFIRMED = 'YES';
       row.data.ANSWERED = 'YES';
     }
     else if(resp.context.flow.variables.CANCELED) {
+      console.log('Found cancel response: ', sids[1]);
       row.data.CANCELED = 'YES';
       row.data.ANSWERED = 'YES';
     }
   }
+
+  if(!row.data.ANSWERED)
+    console.log('No response found.', sids[1]);
 
   return row;
 }

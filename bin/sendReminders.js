@@ -92,7 +92,7 @@ function setRowHeadersIfNotExist(row) {
 }
 
 async function makeVoiceCall(row) {
-  console.log(`Sending Call ${Number(row.data.CALLS_SENT)+1} to ${row.data.AppointmentId}`);
+  console.log(`Sending Call ${Number(row.data.CALLS_SENT)+1} to ${row.data.AppointmentId} / ${row.data.PhoneNumber}`);
   const message_params = createMessageFromTemplate(row, 'Voice');
   const execution = await triggerAppointmentReminder(message_params, row.data.PhoneNumber, CALL_FROM_NUMBER);
   if(execution.sid) {
@@ -103,7 +103,7 @@ async function makeVoiceCall(row) {
 }
 
 async function sendSMS(row) {
-  console.log(`Sending SMS ${Number(row.data.SMS_SENT)+1} to ${row.data.AppointmentId}`);
+  console.log(`Sending SMS ${Number(row.data.SMS_SENT)+1} to ${row.data.AppointmentId} / ${row.data.PhoneNumber}`);
   const message_params = createMessageFromTemplate(row, 'SMS');
   const execution = await triggerAppointmentReminder(message_params, row.data.PhoneNumber, SMS_FROM_NUMBER);
   if(execution.sid) {
@@ -129,7 +129,7 @@ module.exports = function processFile(filepath, callback) {
     setRowHeadersIfNotExist(row);
 
     if(row.data.CONFIRMED=='YES' || row.data.CANCELED=='YES') {
-      console.log('Response received.');
+      console.log(`Response received from ${row.data.AppointmentId} / ${row.data.PhoneNumber}`);
     }
     else if(row.data.SMS_SENT < MAX_SMS) {
       row = await sendSMS(row);
