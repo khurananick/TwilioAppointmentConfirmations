@@ -19,19 +19,12 @@ This application uses a node CLI script + Twilio Studio to send out and confirm 
 
 ## How To Run
 **Step 1:** Add the `csv` file of your contacts into the lists directory. There's a list.csv.sample in there for a starting point. \
-**Step 2:** To send out the messages, the command is `node bin/sendReminders.js` \
-**Step 3:** To check messages, the command is `node bin/checkResponses.js` \
+**Step 2:** To check responses and send out the confirmation messages, the command is `node app.js` \
 
 ## Default Desigend Flow
-The default designed flow is for a 3-day reminder flow: the first 2 reminders are SMS. the final reminder is a Voice call. This best works if you set up a cron task as follows:
-- `node bin/sendReminders.js` at, say, 9am every morning.
-- `node bin/checkResponses.js` at, say, 8am every morning. (an hour before sending new reminders).
-
-What does this do? A few things! Essentially what this will do is:
-- On **Day1** at 8am there are no responses, but the script will run and end without any updates.
-- On **Day1** at 9am the script will run and send out **SMS** reminder to all the contacts in the csvs.
-- On **Day2** at 8am the script will check if any of the reminders from yesterday  had a response and update confirm/canceled accordingly.
-- On **Day2** at 9am the script will send another **SMS** to the contacts who never responded to **Day1** SMS.
-- On **Day3** at 8am the script will check if any of the reminders from yesterday had a response and update confirm/canceled accordingly.
-- On **Day3** at 9am the script will make a voice call to the contacts who never responded to **Day2** SMS.
-
+By running `node app.js` the application does the following:
+- Iterates through the `csv` files in the `lists` folder to check if any contact has a previous studio execution.
+- If the contact has a previous execution, the application will end the execution (if still active)
+- If the contact has a previous execution, the application will pull the context of the execution to check if there was a response received.
+- If response is received, the application will update the record so no new confirmations are sent.
+- The application will then iterate over the list again and send out a SMS or Voice confirmation if no previous response is entered.
