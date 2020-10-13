@@ -1,33 +1,3 @@
-/*
- * This script is used in conjunction with a Twilio Studio Flow
- * to trigger a series of reminders for an upcoming appointment.
- * We start with including some libraries and details we need.
- */
-const env     = require('dotenv').config().parsed;
-const request = require('request-promise');
-const fs      = require('fs');
-const glob    = require('glob');
-const papa    = require("papaparse");
-
-// converts your account sid and auth token into a base64 string to be sent as Basic auth.
-const AUTH_BASE64         = Buffer.from(`${env.TWILIO_ACCOUNT_SID}:${env.TWILIO_AUTH_TOKEN}`).toString('base64');
-
-// defines the caller id of the phone number the voice reminder call comes from.
-const CALL_FROM_NUMBER    = env.CALL_FROM_NUMBER.split(',');
-
-// an array of phone numbers to send SMS from in case the person has multiple appoinments
-// in the same window of time when you're sending your reminders.
-const SMS_FROM_NUMBER     = env.SMS_FROM_NUMBER.split(',');
-
-// each time you run this script, it will first test if max sms is reached.
-// until max sms is reached, the script will send a text message reminder
-// once sms max is reached, it will start sending voice calls for max calls
-// if you use the default here, the first two times you run this script it will
-// send a text reminder. the third time will send a voice reminder. after that
-// it will not send any more reminders.
-const MAX_SMS             = 2;
-const MAX_CALL            = 1;
-
 // this function takes in the row information and channel
 // then creates a message template to be used when communicating
 // with the person. the function returns an object that the
@@ -147,7 +117,7 @@ async function sendSMS(row) {
 // checks if a SMS or Voice notification needs
 // to be sent to the contact and does the needful
 // then overwrites the file with updated data
-function processFile(filepath, callback) {
+module.exports = function processFile(filepath, callback) {
   const completedRows = [];
 
   // callback function when each new row is read
@@ -194,33 +164,3 @@ function processFile(filepath, callback) {
     complete: finished
   });
 }
-
-// looks for csv files in the lists folder
-// then processes each file
-function run() {
-  glob("lists/*.csv", {}, function(err, files) {
-    function callback() {
-      if(files.length) {
-        const filepath = files.shift();
-        console.log('Working on', filepath);
-        processFile(filepath, callback);
-      }
-      else {
-        console.log('Finished sending reminders!');
-        process.exit(0);
-      }
-    }
-
-    callback();
-  });
-}
-
-function test() {
-}
-
-// check for --test flag in command to run as test or live.
-for(let arg of process.argv)
-  if(arg.match("--test"))
-    return test();
-
-run();
