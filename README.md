@@ -28,3 +28,9 @@ By running `node app.js` the application does the following:
 - If the contact has a previous execution, the application will pull the context of the execution to check if there was a response received.
 - If response is received, the application will update the record so no new confirmations are sent.
 - The application will then iterate over the list again and send out a SMS or Voice confirmation if no previous response is entered.
+
+## Limitations
+- **Needs better error handling**: Right now, if a csv file in process fails half-way, the updates are not saved. We won't know where it failed and how many records were updated before the fail.
+- **Very Strict**: The process allows only a 1(yes) or 2(no) response. Do you want to enable more conversational flow? Maybe allow rescheduling? Will need to be built further.
+- **Lacks Unit Testing**: This library is sample code to show one way to gather appointment confirmations using Twilio. There are many ways to build a flow. This application does not come with any warranties and is missing unit tests, so please be sure to make it more production ready before using any parts of it.
+
