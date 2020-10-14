@@ -1,3 +1,3 @@
-AppointmentId,PatientName,PhoneNumber,Language,DateAndTime
-0ih3orefwjfo0i23,Nick English,19084445555,en,11/11/2020 3:30 PM
-ha09r3iejfoweiwj,Nick Spanish,19085554444,es,11/12/2020 12:30 PM
+AppointmentId,FName,LName,PhoneNumber,Language,DateAndTime
+0ih3orefwjfo0i23,Nick,English,19084445555,en,11/11/2020 3:30 PM
+ha09r3iejfoweiwj,Nick,Spanish,19085554444,es,11/12/2020 12:30 PM

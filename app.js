@@ -28,9 +28,18 @@ SMS_FROM_NUMBER     = env.SMS_FROM_NUMBER.split(',');
 MAX_SMS             = 2;
 MAX_CALL            = 1;
 
+// add the fields in your csv file that represent each
+// field needed for this script to send the confirmations
+firstNameField            = 'FName';
+lastNameField             = 'LName';
+phoneNumberField          = 'PhoneNumber';
+appointmentDateTimeField  = 'DateAndTime';
+messageLanguageField      = 'Language'
+appointmentIDField        = 'AppointmentId';
+
 // loading reference to each 
-const sendReminders = require('./bin/sendReminders.js');
-const checkResponses = require('./bin/checkResponses.js');
+const sendReminders   = require('./bin/sendReminders.js');
+const checkResponses  = require('./bin/checkResponses.js');
 
 // looks for csv files in the lists folder
 // then processes each file

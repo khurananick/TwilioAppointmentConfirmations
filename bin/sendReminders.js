@@ -3,16 +3,16 @@
 // with the person. the function returns an object that the
 // studio flow will rely on. 
 function createMessageFromTemplate(row, channel) {
-  const resp = { channel: channel, language: row.data.Language };
+  const resp = { channel: channel, language: row.data[messageLanguageField] };
 
   function english() {
     resp.confirmation_message = `Thanks! See you at the office.`;
     resp.cancellation_message = `We understand that plans change. Thanks for letting us know!`;
     resp.invalid_response_message = `We're sorry, we couldn't understand your response.`;
     if(channel == "Voice")
-      resp.initial_message = `Hi ${row.data.PatientName}, Your appointment is on ${row.data.DateAndTime}. Press 1 to confirm or 2 to cancel.`;
+      resp.initial_message = `Hi ${row.data[firstNameField]}, your appointment is on ${row.data[appointmentDateTimeField]}. Press 1 to confirm or 2 to cancel.`;
     else if(channel == "SMS")
-      resp.initial_message = `Hi ${row.data.PatientName}, Your appointment is on ${row.data.DateAndTime}. Reply 1 to confirm or 2 to cancel.`;
+      resp.initial_message = `Hi ${row.data[firstNameField]}, your appointment is on ${row.data[appointmentDateTimeField]}. Reply 1 to confirm or 2 to cancel.`;
     return resp;
   }
   function spanish() {
@@ -26,7 +26,7 @@ function createMessageFromTemplate(row, channel) {
     return resp;
   }
 
-  switch(row.data.Language) {
+  switch(row.data[messageLanguageField]) {
     case "es":
       return spanish();
     default:
@@ -92,9 +92,9 @@ function setRowHeadersIfNotExist(row) {
 }
 
 async function makeVoiceCall(row) {
-  console.log(`Sending Call ${Number(row.data.CALLS_SENT)+1} to ${row.data.AppointmentId} / ${row.data.PhoneNumber}`);
+  console.log(`Sending Call ${Number(row.data.CALLS_SENT)+1} to ${row.data[appointmentIDField]} / ${row.data[phoneNumberField]}`);
   const message_params = createMessageFromTemplate(row, 'Voice');
-  const execution = await triggerAppointmentReminder(message_params, row.data.PhoneNumber, CALL_FROM_NUMBER);
+  const execution = await triggerAppointmentReminder(message_params, row.data[phoneNumberField], CALL_FROM_NUMBER);
   if(execution.sid) {
     row.data.CALLS_SENT = Number(row.data.CALLS_SENT) + 1;
     row.data.CURRENT_EXECUTION_SID = `${execution.flow_sid}.${execution.sid}`;
@@ -103,9 +103,9 @@ async function makeVoiceCall(row) {
 }
 
 async function sendSMS(row) {
-  console.log(`Sending SMS ${Number(row.data.SMS_SENT)+1} to ${row.data.AppointmentId} / ${row.data.PhoneNumber}`);
+  console.log(`Sending SMS ${Number(row.data.SMS_SENT)+1} to ${row.data[appointmentIDField]} / ${row.data[phoneNumberField]}`);
   const message_params = createMessageFromTemplate(row, 'SMS');
-  const execution = await triggerAppointmentReminder(message_params, row.data.PhoneNumber, SMS_FROM_NUMBER);
+  const execution = await triggerAppointmentReminder(message_params, row.data[phoneNumberField], SMS_FROM_NUMBER);
   if(execution.sid) {
     row.data.SMS_SENT = Number(row.data.SMS_SENT) + 1;
     row.data.CURRENT_EXECUTION_SID = `${execution.flow_sid}.${execution.sid}`;
@@ -129,7 +129,7 @@ module.exports = function processFile(filepath, callback) {
     setRowHeadersIfNotExist(row);
 
     if(row.data.CONFIRMED=='YES' || row.data.CANCELED=='YES') {
-      console.log(`Response received from ${row.data.AppointmentId} / ${row.data.PhoneNumber}`);
+      console.log(`Response received from ${row.data[appointmentIDField]} / ${row.data[phoneNumberField]}`);
     }
     else if(row.data.SMS_SENT < MAX_SMS) {
       row = await sendSMS(row);
@@ -138,7 +138,7 @@ module.exports = function processFile(filepath, callback) {
       row = await makeVoiceCall(row);
     }
     else {
-      console.log('MAX_ALERTS_REACHED.', row.data.PhoneNumber);
+      console.log('MAX_ALERTS_REACHED.', row.data[phoneNumberField]);
     }
 
     sleep(timeLapse, new Date().getTime()); // sleep long enough to let 1 second pass by.
