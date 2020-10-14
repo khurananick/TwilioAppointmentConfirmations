@@ -1,5 +1,6 @@
 **Please note this is not an official Twilio supported application.**\
-**This application does not come with any warranties. You may use this application at your own risk.** 
+**This application does not come with any warranties. You may use this application at your own risk.** \
+**Please be sure to see the limitations section below before using this application.**
 
 ## Intro
 This application uses a node CLI script + Twilio Studio to send out and confirm appointment reminders.
