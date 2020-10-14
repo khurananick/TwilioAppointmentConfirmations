@@ -10,11 +10,11 @@ This application uses a node CLI script + Twilio Studio to send out and confirm 
 <p align="center"><img src="./screenshots/flow.png?raw=true" width="650px" /></p>
 
 **Step 2:** Assign your [Phone Numbers](https://www.twilio.com/console/phone-numbers/incoming) to the Studio Flow.
-<p align="center"><img src="./screenshots/numbers.png?raw=true" width="450px" /></p>
+<p align="center"><img src="./screenshots/numbers.png?raw=true" width="550px" /></p>
 
 **Step 3:** Clone this repository and copy `env.sample` to `.env` and add your account details in.
 - `STUDIO_FLOW_ENDPOINT` is the REST API URL of your Studio Flow
-<p align="center"><img src="./screenshots/endpoint.png?raw=true" width="450px" /></p>
+<p align="center"><img src="./screenshots/endpoint.png?raw=true" width="350px" /></p>
 
 - `CALL_FROM_NUMBER` and `CALL_FROM_NUMBER` are to be a comma-separated string of phone numbers from your account to be used for either sending a SMS or making a call.
 
